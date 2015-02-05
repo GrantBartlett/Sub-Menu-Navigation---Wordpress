@@ -11,7 +11,7 @@
 
 add_action( 'widgets_init', function () {
 	register_widget( 'Sub_Menu_Navigation' );
-} );
+});
 
 class Sub_Menu_Navigation extends WP_Widget {
 
@@ -36,13 +36,41 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		// Outputs content of the widget
+		global $post;
+
+		/** @see get_pages() **/
+		$pageArgs = array(
+			'child_of'    => $post->ID,
+			'parent'      => $post->ID,
+			'sort_order'  => 'asc',
+			'post_type'   => 'page',
+			'post_status' => 'publish'
+		);
+
+		$childPageList = get_pages($pageArgs);
+
+		if($post->post_parent ) {
+			$pageArgs['child_of'] = $pageArgs['parent'] = $post->post_parent;
+			$childPageList = get_pages($pageArgs);
+		}
 
 		echo $args['before_widget'];
 
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 		}
-		echo __( ' Hello World!', 'text_domain' );
+
+		foreach ( $childPageList as $page ) {
+			switch ( $page->ID ) {
+				case $post->ID:
+					$pageIsActive = "class=\"active\"";
+					break;
+				default:
+					$pageIsActive = "";
+					break;
+			}
+			echo "<a href='" . get_permalink( $page->ID ) . "' ". $pageIsActive ." title='". get_the_title( $page->ID ) ."'>" . get_the_title( $page->ID ) . "</a>";
+		}
 
 		echo $args['after_widget'];
 	}
@@ -81,7 +109,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		// Processes widget options to be saved
-		$instance          = array();
+		$instance = [];
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 
 		return $instance;
