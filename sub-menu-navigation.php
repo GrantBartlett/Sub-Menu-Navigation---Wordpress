@@ -2,16 +2,16 @@
 
 /*
  * Plugin Name: Sub Menu Navigation
- * Plugin URI: #
+ * Plugin URI: http://grant-bartlett.com
  * Description: Provides a theme-independent widget to display the child pages of the current page.
  * Author: Grant Bartlett
  * Author URI: http://grant-bartlett.com/
  * Version: 1.0.0
  */
 
-add_action( 'widgets_init', function(){
-     register_widget( 'Sub_Menu_Navigation' );
-});
+add_action( 'widgets_init', function () {
+	register_widget( 'Sub_Menu_Navigation' );
+} );
 
 class Sub_Menu_Navigation extends WP_Widget {
 
@@ -30,6 +30,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 * Front-end display of widget
 	 *
 	 * @see WP_Widget::widget()
+	 *
 	 * @param array $args
 	 * @param array $instance
 	 */
@@ -38,10 +39,11 @@ class Sub_Menu_Navigation extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if(! empty($instance['title'])) {
-			echo $args['before_title'] . apply_filters('widget_title', $instance['title']).$args['after_title'];
+		if ( ! empty( $instance['title'] ) ) {
+			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 		}
-		echo __( ' Hello, World!', 'text_domain');
+		echo __( ' Hello World!', 'text_domain' );
+
 		echo $args['after_widget'];
 	}
 
@@ -53,6 +55,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 * Outputs array $instance The Widget Options
 	 *
 	 * @param array $instance
+	 *
 	 * @return form
 	 */
 	public function form( $instance ) {
@@ -63,7 +66,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
 		</p>
-		<?php
+	<?php
 	}
 
 	/**
@@ -78,7 +81,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		// Processes widget options to be saved
-		$instance = array();
+		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 
 		return $instance;
