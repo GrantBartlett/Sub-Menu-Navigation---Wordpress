@@ -2,7 +2,7 @@
 
 /*
  * Plugin Name: Sub Menu Navigation
- * Plugin URI: http://grant-bartlett.com
+ * Plugin URI: https://github.com/GrantBartlett/Sub-Menu-Navigation-Wordpress
  * Description: Provides a theme-independent widget to display the child pages of the current page.
  * Author: Grant Bartlett
  * Author URI: http://grant-bartlett.com/
@@ -38,46 +38,110 @@ class Sub_Menu_Navigation extends WP_Widget {
 		// Outputs content of the widget
 		global $post;
 
-		/** @see get_pages() **/
+		// Get Current Post Type
+		$curPostType = get_post_type();
+
+
+		/**
+		 * If field isn't empty, use widget fields
+		 */
+		if ( ! empty( $instance['title'] ) ) {
+			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+		}
+
+		if ( ! empty( $instance['class'] ) ) {
+			echo apply_filters( 'widget_class', '', $instance['class'] = "class='". $instance['class'] . "'");
+		}
+
+		if ( ! empty( $instance['types'] ) ) {
+			echo apply_filters( 'widget_class', '', $instance['types'] . "'" );
+		}
+
+
+		/**
+		 * List of @see get_pages() args
+		 **/
 		$pageArgs = array(
-			'child_of'    => $post->ID,
-			'parent'      => $post->ID,
-			'sort_order'  => 'asc',
+			'sort_column' => 'menu_order',
 			'post_type'   => 'page',
 			'post_status' => 'publish'
 		);
 
 		$childPageList = get_pages($pageArgs);
 
-		if($post->post_parent ) {
-			$pageArgs['child_of'] = $pageArgs['parent'] = $post->post_parent;
-			$childPageList = get_pages($pageArgs);
+
+		/**
+		 * Store page ID's into new array
+		 * @pageIdArr
+		 */
+		$pageIdArr = [];
+
+		foreach ( $childPageList as $page => $v ) {
+			$pageIdArr['id'][] = $v->ID;
 		}
 
+
+		/**
+		 * Find position of active page in @pageIdArr
+		 */
+		$current = array_search( get_the_ID(), $pageIdArr['id'] );
+
+
+		/**
+		 * Find previous/next post
+		 * @see get_previous_post()
+		 * @see get_next_post()
+		 */
+		$prev_post = get_previous_post();
+		$next_post = get_next_post();
+
+
+		/**
+		 * Begin widget content
+		 */
 		echo $args['before_widget'];
 
-		if ( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
-		}
-		if ( ! empty( $instance['class'] ) ) {
-			echo apply_filters( 'widget_class', '', $instance['class'] = "class='". $instance['class'] . "'");
+
+		/**
+		 * Check through post types and generate appropriately.
+		 * @curPostType
+		 */
+		switch ( $curPostType ) {
+
+			// Retrieve and Post Types Entered into Widget Admin form
+
+			case $instance['types']:
+				echo "<ul " . $instance['class'] . ">";
+				for ( $i = - 1; $i < 3; $i ++ ) {
+					switch ( $pageIdArr['id'][ $current + $i ] ) {
+						case get_the_ID():
+							$pageIsActive = "class=\"active\"";
+							break;
+
+						default:
+							$pageIsActive = '';
+					}
+					echo "<li><a href='" . get_permalink( $pageIdArr['id'][ $current + $i ] ) . "' " . $pageIsActive . " title='" . get_the_title( $pageIdArr['id'][ $current + $i ] ) . "'>" . get_the_title( $pageIdArr['id'][ $current + $i ] ) . "</a></li>";
+				}
+				echo "</ul>";
+				break;
+
+			default:
+				// Simple Navigation using prev, current, and next post if no post type matched
+				echo "<ul " . $instance['class'] . ">"; ?>
+					<li><a href="<?php echo get_permalink($prev_post->ID); ?>" title="<?php echo $prev_post->post_title; ?>"><?php echo $prev_post->post_title; ?></a></li>
+					<li><a href="<?php echo get_permalink($post->ID); ?>" title="<?php echo $post->post_title; ?>" class="active"><?php echo $post->post_title; ?></a></li>
+					<li><a href="<?php echo get_permalink($next_post->ID); ?>" title="<?php echo $next_post->post_title; ?>"><?php echo $next_post->post_title; ?></a></li>
+				<?php echo "</ul>";
+				break;
 		}
 
-		echo "<ul ". $instance['class'] .">";
-		foreach ( $childPageList as $page ) {
-			switch ( $page->ID ) {
-				case $post->ID:
-					$pageIsActive = "class=\"active\"";
-					break;
-				default:
-					$pageIsActive = "";
-					break;
-			}
-			echo "<li><a href='" . get_permalink( $page->ID ) . "' ". $pageIsActive ." title='". get_the_title( $page->ID ) ."'>" . get_the_title( $page->ID ) . "</a></li>";
-		}
-		echo "</ul>";
 
+		/**
+		 * End widget content
+		 */
 		echo $args['after_widget'];
+
 	}
 
 	/**
@@ -93,8 +157,9 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 */
 	public function form( $instance ) {
 		// Outputs the options form on admin
-		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( 'New title', 'text_domain' );
-		$class = ! empty( $instance['class'] ) ? $instance['class'] : __( 'Add a class', 'text_domain' );
+		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( '', 'text_domain' );
+		$class = ! empty( $instance['class'] ) ? $instance['class'] : __( '', 'text_domain' );
+		$types = ! empty( $instance['types'] ) ? $instance['types'] : __( '', 'text_domain' );
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
@@ -104,7 +169,10 @@ class Sub_Menu_Navigation extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'class' ); ?>"><?php _e( 'Class:' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'class' ); ?>" name="<?php echo $this->get_field_name( 'class' ); ?>" type="text" value="<?php echo esc_attr( $class ); ?>">
 		</p>
-
+		<p>
+			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php _e( 'Post Types:' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'class' ); ?>" name="<?php echo $this->get_field_name( 'types' ); ?>" type="text" value="<?php echo esc_attr( $types ); ?>">
+		</p>
 	<?php
 	}
 
@@ -124,8 +192,8 @@ class Sub_Menu_Navigation extends WP_Widget {
 
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 		$instance['class'] = ( ! empty( $new_instance['class'] ) ) ? strip_tags( $new_instance['class'] ) : '';
+		$instance['types'] = ( ! empty( $new_instance['types'] ) ) ? strip_tags( $new_instance['types'] ) : '';
 
 		return $instance;
 	}
 }
-
