@@ -59,7 +59,11 @@ class Sub_Menu_Navigation extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 		}
+		if ( ! empty( $instance['class'] ) ) {
+			echo apply_filters( 'widget_class', '', $instance['class'] = "class='". $instance['class'] . "'");
+		}
 
+		echo "<ul ". $instance['class'] .">";
 		foreach ( $childPageList as $page ) {
 			switch ( $page->ID ) {
 				case $post->ID:
@@ -69,8 +73,9 @@ class Sub_Menu_Navigation extends WP_Widget {
 					$pageIsActive = "";
 					break;
 			}
-			echo "<a href='" . get_permalink( $page->ID ) . "' ". $pageIsActive ." title='". get_the_title( $page->ID ) ."'>" . get_the_title( $page->ID ) . "</a>";
+			echo "<li><a href='" . get_permalink( $page->ID ) . "' ". $pageIsActive ." title='". get_the_title( $page->ID ) ."'>" . get_the_title( $page->ID ) . "</a></li>";
 		}
+		echo "</ul>";
 
 		echo $args['after_widget'];
 	}
@@ -89,11 +94,17 @@ class Sub_Menu_Navigation extends WP_Widget {
 	public function form( $instance ) {
 		// Outputs the options form on admin
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( 'New title', 'text_domain' );
+		$class = ! empty( $instance['class'] ) ? $instance['class'] : __( 'Add a class', 'text_domain' );
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
 		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'class' ); ?>"><?php _e( 'Class:' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'class' ); ?>" name="<?php echo $this->get_field_name( 'class' ); ?>" type="text" value="<?php echo esc_attr( $class ); ?>">
+		</p>
+
 	<?php
 	}
 
@@ -110,7 +121,9 @@ class Sub_Menu_Navigation extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		// Processes widget options to be saved
 		$instance = [];
+
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['class'] = ( ! empty( $new_instance['class'] ) ) ? strip_tags( $new_instance['class'] ) : '';
 
 		return $instance;
 	}
