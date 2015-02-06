@@ -38,9 +38,14 @@ class Sub_Menu_Navigation extends WP_Widget {
 		// Outputs content of the widget
 		global $post;
 
+		// Empty left/right input form fields for arrows
+		$arrLeft = "";
+		$arrRight = "";
+		$pageIsActive = false;
+
+
 		// Get Current Post Type
 		$curPostType = get_post_type();
-
 
 		/**
 		 * If field isn't empty, use widget fields
@@ -57,6 +62,15 @@ class Sub_Menu_Navigation extends WP_Widget {
 			echo apply_filters( 'widget_class', '', $instance['types'] . "'" );
 		}
 
+		if ( ! empty( $instance['arrLeft'] ) ) {
+			echo apply_filters( 'widget_class', '', $instance['arrLeft'] . "'" );
+			$arrLeft = "<li><i class='". $instance['arrLeft'] ."'></i></li>";
+		}
+
+		if ( ! empty( $instance['arrRight'] ) ) {
+			echo apply_filters( 'widget_class', '', $instance['arrRight'] . "'" );
+			$arrRight = "<li><i class='". $instance['arrRight'] ."'></i></li>";
+		}
 
 		/**
 		 * List of @see get_pages() args
@@ -106,42 +120,52 @@ class Sub_Menu_Navigation extends WP_Widget {
 		 * Check through post types and generate appropriately.
 		 * @curPostType
 		 */
+
 		switch ( $curPostType ) {
 
 			// Retrieve and Post Types Entered into Widget Admin form
 
 			case $instance['types']:
+				// Begin list
 				echo "<ul " . $instance['class'] . ">";
-				for ( $i = - 1; $i < 3; $i ++ ) {
-					switch ( $pageIdArr['id'][ $current + $i ] ) {
-						case get_the_ID():
-							$pageIsActive = "class=\"active\"";
-							break;
+				echo $arrLeft;
 
-						default:
-							$pageIsActive = '';
+				for ( $i = - 1; $i < 2; $i ++ ) :?>
+					<?php
+					if ( $pageIdArr['id'][ $current + $i ] == get_the_ID() ) {
+						$pageIsActive = true;
+					} else {
+						$pageIsActive = false;
 					}
-					echo "<li><a href='" . get_permalink( $pageIdArr['id'][ $current + $i ] ) . "' " . $pageIsActive . " title='" . get_the_title( $pageIdArr['id'][ $current + $i ] ) . "'>" . get_the_title( $pageIdArr['id'][ $current + $i ] ) . "</a></li>";
-				}
+					?>
+					<?php if($pageIsActive):?><?php echo $arrLeft;?><?php endif;?>
+					<li><a href="<?php echo get_permalink( $pageIdArr['id'][ $current + $i ] ) ?>" <?php if ( $pageIsActive ) { echo "class=\"active\""; } ?> title="<?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?>"><?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?> </a></li>
+					<?php if($pageIsActive):?><?php echo $arrRight;?><?php endif;?>
+				<?php endfor;
+
+				echo $arrRight;
+				// End list
 				echo "</ul>";
 				break;
 
 			default:
 				// Simple Navigation using prev, current, and next post if no post type matched
 				echo "<ul " . $instance['class'] . ">"; ?>
-					<li><a href="<?php echo get_permalink($prev_post->ID); ?>" title="<?php echo $prev_post->post_title; ?>"><?php echo $prev_post->post_title; ?></a></li>
-					<li><a href="<?php echo get_permalink($post->ID); ?>" title="<?php echo $post->post_title; ?>" class="active"><?php echo $post->post_title; ?></a></li>
-					<li><a href="<?php echo get_permalink($next_post->ID); ?>" title="<?php echo $next_post->post_title; ?>"><?php echo $next_post->post_title; ?></a></li>
-				<?php echo "</ul>";
-				break;
-		}
 
+					<?php echo $arrLeft;?>
+					<li><a href="<?php echo get_permalink($prev_post->ID); ?>" title="<?php echo $prev_post->post_title; ?>"><?php echo $prev_post->post_title; ?></a></li>
+					<?php echo $arrLeft;?>
+					<li><a href="<?php echo get_permalink($post->ID); ?>" title="<?php echo $post->post_title; ?>" class="active"><?php echo $post->post_title; ?></a></li>
+					<?php echo $arrRight;?>
+					<li><a href="<?php echo get_permalink($next_post->ID); ?>" title="<?php echo $next_post->post_title; ?>"><?php echo $next_post->post_title; ?></a></li>
+					<?php echo $arrRight;?>
+				<?php echo "</ul>";
+		}
 
 		/**
 		 * End widget content
 		 */
 		echo $args['after_widget'];
-
 	}
 
 	/**
@@ -160,6 +184,8 @@ class Sub_Menu_Navigation extends WP_Widget {
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( '', 'text_domain' );
 		$class = ! empty( $instance['class'] ) ? $instance['class'] : __( '', 'text_domain' );
 		$types = ! empty( $instance['types'] ) ? $instance['types'] : __( '', 'text_domain' );
+		$arrRight = ! empty( $instance['arrRight'] ) ? $instance['arrRight'] : __( '', 'text_domain' );
+		$arrLeft = ! empty( $instance['arrLeft'] ) ? $instance['arrLeft'] : __( '', 'text_domain' );
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
@@ -170,8 +196,16 @@ class Sub_Menu_Navigation extends WP_Widget {
 			<input class="widefat" id="<?php echo $this->get_field_id( 'class' ); ?>" name="<?php echo $this->get_field_name( 'class' ); ?>" type="text" value="<?php echo esc_attr( $class ); ?>">
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php _e( 'Post Types:' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php _e( 'Post Type?' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'class' ); ?>" name="<?php echo $this->get_field_name( 'types' ); ?>" type="text" value="<?php echo esc_attr( $types ); ?>">
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'arrLeft' ); ?>"><?php _e( 'Left Arrow <small>(Font Awesome)</small>' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'arrLeft' ); ?>" name="<?php echo $this->get_field_name( 'arrLeft' ); ?>" type="text" value="<?php echo esc_attr( $arrLeft ); ?>">
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'arrRight' ); ?>"><?php _e( 'Right Arrow <small>(Font Awesome)</small>' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'arrRight' ); ?>" name="<?php echo $this->get_field_name( 'arrRight' ); ?>" type="text" value="<?php echo esc_attr( $arrRight ); ?>">
 		</p>
 	<?php
 	}
@@ -184,6 +218,8 @@ class Sub_Menu_Navigation extends WP_Widget {
 	 * @param array $new_instance
 	 * @param array $old_instance
 	 *
+	 * sanitize_text_field()
+	 *
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
@@ -193,6 +229,8 @@ class Sub_Menu_Navigation extends WP_Widget {
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 		$instance['class'] = ( ! empty( $new_instance['class'] ) ) ? strip_tags( $new_instance['class'] ) : '';
 		$instance['types'] = ( ! empty( $new_instance['types'] ) ) ? strip_tags( $new_instance['types'] ) : '';
+		$instance['arrLeft'] = ( ! empty( $new_instance['arrLeft'] ) ) ? strip_tags($new_instance['arrLeft'])  : '';
+		$instance['arrRight'] = ( ! empty( $new_instance['arrRight'] ) ) ?  strip_tags($new_instance['arrRight'])  : '';
 
 		return $instance;
 	}
