@@ -75,6 +75,10 @@ class Sub_Menu_Navigation extends WP_Widget {
 			$arrRight = "<li><i class='". $instance['arrRight'] ."'></i></li>";
 		}
 
+		if ( ! empty( $instance['exclude'] ) ) {
+			$exclude = $instance['exclude'];
+		}
+
 
 		/**
 		 * List of @see get_pages() args
@@ -82,7 +86,8 @@ class Sub_Menu_Navigation extends WP_Widget {
 		$pageArgs = array(
 			'sort_column' => 'menu_order',
 			'post_type'   => 'page',
-			'post_status' => 'publish'
+			'post_status' => 'publish',
+			'exclude' => $exclude
 		);
 
 		$childPageList = get_pages($pageArgs);
@@ -143,15 +148,27 @@ class Sub_Menu_Navigation extends WP_Widget {
 					}
 					?>
 
-					<?php if ( $pageIsActive ): ?><?php echo $arrLeft; ?><?php endif;?>
+					<?php if ( ! empty( $pageIdArr['id'][ $current + $i ] ) ) : ?>
+						<?php if ( $pageIsActive ): ?><?php echo $arrLeft; ?><?php endif; ?>
 
-					<li><a href="<?php echo get_permalink( $pageIdArr['id'][ $current + $i ] ) ?>" <?php if ( $pageIsActive ) { echo "class=\"active\""; } ?> title="<?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?>"><?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?></a></li>
+						<li>
+							<a href="<?php echo get_permalink( $pageIdArr['id'][ $current + $i ] ) ?>" <?php if ( $pageIsActive ) {
+								echo "class=\"active\"";
+							} ?> title="<?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?>"><?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?></a>
+						</li>
 
-					<?php if ( $pageIsActive ): ?><?php echo $arrRight; ?><?php endif;?>
+						<?php if ( $pageIsActive ): ?>
+							<?php echo $arrRight; ?>
+						<?php endif; ?>
 
-				<?php endfor;
+					<?php endif; ?>
+				<?php endfor; ?>
 
-				echo $arrRight;
+				<?php
+				if( end($pageIdArr['id']) != get_the_ID()) {
+					echo $arrRight;
+				}
+
 				// End list
 				echo "</ul>";
 				break;
@@ -202,6 +219,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 		$types = ! empty( $instance['types'] ) ? $instance['types'] : __( '', 'text_domain' );
 		$arrRight = ! empty( $instance['arrRight'] ) ? $instance['arrRight'] : __( '', 'text_domain' );
 		$arrLeft = ! empty( $instance['arrLeft'] ) ? $instance['arrLeft'] : __( '', 'text_domain' );
+		$exclude = ! empty( $instance['exclude'] ) ? $instance['exclude'] : __( '', 'text_domain' );
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
@@ -222,6 +240,10 @@ class Sub_Menu_Navigation extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'arrRight' ); ?>"><?php _e( 'Right Arrow <small>(Font Awesome)</small>' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'arrRight' ); ?>" name="<?php echo $this->get_field_name( 'arrRight' ); ?>" type="text" value="<?php echo esc_attr( $arrRight ); ?>">
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'exclude' ); ?>"><?php _e( 'Exclude Page IDs' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'exclude' ); ?>" name="<?php echo $this->get_field_name( 'exclude' ); ?>" type="text" value="<?php echo esc_attr( $exclude ); ?>">
 		</p>
 	<?php
 	}
@@ -248,6 +270,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 		$instance['types'] = ( ! empty( $new_instance['types'] ) ) ? strip_tags( $new_instance['types'] ) : '';
 		$instance['arrLeft'] = ( ! empty( $new_instance['arrLeft'] ) ) ? strip_tags($new_instance['arrLeft'])  : '';
 		$instance['arrRight'] = ( ! empty( $new_instance['arrRight'] ) ) ?  strip_tags($new_instance['arrRight'])  : '';
+		$instance['exclude'] = ( ! empty( $new_instance['exclude'] ) ) ?  strip_tags($new_instance['exclude'])  : '';
 
 		return $instance;
 	}
