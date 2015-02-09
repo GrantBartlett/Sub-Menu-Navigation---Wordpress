@@ -162,15 +162,15 @@ class Sub_Menu_Navigation extends WP_Widget {
 
 				<?php if ( ! empty( $prev_post->ID ) ): ?>
 					<?php echo $arrLeft; ?>
-					<li><a href="<?php echo get_permalink($prev_post->ID); ?>"><?php echo get_the_title( $prev_post->ID ); ?></a></li>
+					<li><a href="<?php echo get_permalink($prev_post->ID); ?>" title="<?php echo get_the_title( $prev_post->ID ); ?>"><?php echo get_the_title( $prev_post->ID ); ?></a></li>
 					<?php echo $arrLeft; ?>
 				<?php endif; ?>
 
-					<li><a href="<?php echo get_permalink($post->ID); ?>" class="active"><?php echo get_the_title( $post->ID ); ?></a></li>
+					<li><a href="<?php echo get_permalink($post->ID); ?>" class="active" title="<?php echo get_the_title( $post->ID ); ?>"><?php echo get_the_title( $post->ID ); ?></a></li>
 
 				<?php if ( ! empty( $next_post->ID ) ): ?>
 					<?php echo $arrRight; ?>
-					<li><a href="<?php echo get_permalink($next_post->ID); ?>"><?php echo get_the_title( $next_post->ID ); ?></a></li>
+					<li><a href="<?php echo get_permalink($next_post->ID); ?>" title="<?php echo get_the_title( $next_post->ID ); ?>"><?php echo get_the_title( $next_post->ID ); ?></a></li>
 					<?php echo $arrRight; ?>
 				<?php endif; ?>
 
