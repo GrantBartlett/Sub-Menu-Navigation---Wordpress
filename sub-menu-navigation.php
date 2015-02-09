@@ -131,6 +131,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 				echo $arrLeft;
 
 				for ( $i = - 1; $i < 2; $i ++ ) :?>
+
 					<?php
 					if ( $pageIdArr['id'][ $current + $i ] == get_the_ID() ) {
 						$pageIsActive = true;
@@ -138,9 +139,13 @@ class Sub_Menu_Navigation extends WP_Widget {
 						$pageIsActive = false;
 					}
 					?>
+
 					<?php if($pageIsActive):?><?php echo $arrLeft;?><?php endif;?>
+
 					<li><a href="<?php echo get_permalink( $pageIdArr['id'][ $current + $i ] ) ?>" <?php if ( $pageIsActive ) { echo "class=\"active\""; } ?> title="<?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?>"><?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?> </a></li>
+
 					<?php if($pageIsActive):?><?php echo $arrRight;?><?php endif;?>
+
 				<?php endfor;
 
 				echo $arrRight;
@@ -152,13 +157,20 @@ class Sub_Menu_Navigation extends WP_Widget {
 				// Simple Navigation using prev, current, and next post if no post type matched
 				echo "<ul " . $instance['class'] . ">"; ?>
 
-					<?php echo $arrLeft;?>
-					<li><a href="<?php echo get_permalink($prev_post->ID); ?>" title="<?php echo $prev_post->post_title; ?>"><?php echo $prev_post->post_title; ?></a></li>
-					<?php echo $arrLeft;?>
-					<li><a href="<?php echo get_permalink($post->ID); ?>" title="<?php echo $post->post_title; ?>" class="active"><?php echo $post->post_title; ?></a></li>
-					<?php echo $arrRight;?>
-					<li><a href="<?php echo get_permalink($next_post->ID); ?>" title="<?php echo $next_post->post_title; ?>"><?php echo $next_post->post_title; ?></a></li>
-					<?php echo $arrRight;?>
+				<?php if ( ! empty( $prev_post->ID ) ): ?>
+					<?php echo $arrLeft; ?>
+					<li><a href="<?php echo get_permalink($prev_post->ID); ?>"><?php echo get_the_title( $prev_post->ID ); ?></a></li>
+					<?php echo $arrLeft; ?>
+				<?php endif; ?>
+
+					<li><a href="<?php echo get_permalink($post->ID); ?>" class="active"><?php echo get_the_title( $post->ID ); ?></a></li>
+
+				<?php if ( ! empty( $next_post->ID ) ): ?>
+					<?php echo $arrRight; ?>
+					<li><a href="<?php echo get_permalink($next_post->ID); ?>"><?php echo get_the_title( $next_post->ID ); ?></a></li>
+					<?php echo $arrRight; ?>
+				<?php endif; ?>
+
 				<?php echo "</ul>";
 		}
 
