@@ -26,6 +26,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 		);
 	}
 
+
 	/**
 	 * Front-end display of widget
 	 *
@@ -38,6 +39,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 		// Outputs content of the widget
 		global $post;
 
+
 		// Empty left/right input form fields for arrows
 		$arrLeft = "";
 		$arrRight = "";
@@ -46,6 +48,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 
 		// Get Current Post Type
 		$curPostType = get_post_type();
+
 
 		/**
 		 * If field isn't empty, use widget fields
@@ -71,6 +74,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 			echo apply_filters( 'widget_class', '', $instance['arrRight'] . "'" );
 			$arrRight = "<li><i class='". $instance['arrRight'] ."'></i></li>";
 		}
+
 
 		/**
 		 * List of @see get_pages() args
@@ -120,7 +124,6 @@ class Sub_Menu_Navigation extends WP_Widget {
 		 * Check through post types and generate appropriately.
 		 * @curPostType
 		 */
-
 		switch ( $curPostType ) {
 
 			// Retrieve and Post Types Entered into Widget Admin form
@@ -140,11 +143,11 @@ class Sub_Menu_Navigation extends WP_Widget {
 					}
 					?>
 
-					<?php if($pageIsActive):?><?php echo $arrLeft;?><?php endif;?>
+					<?php if ( $pageIsActive ): ?><?php echo $arrLeft; ?><?php endif;?>
 
-					<li><a href="<?php echo get_permalink( $pageIdArr['id'][ $current + $i ] ) ?>" <?php if ( $pageIsActive ) { echo "class=\"active\""; } ?> title="<?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?>"><?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?> </a></li>
+					<li><a href="<?php echo get_permalink( $pageIdArr['id'][ $current + $i ] ) ?>" <?php if ( $pageIsActive ) { echo "class=\"active\""; } ?> title="<?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?>"><?php echo get_the_title( $pageIdArr['id'][ $current + $i ] ) ?></a></li>
 
-					<?php if($pageIsActive):?><?php echo $arrRight;?><?php endif;?>
+					<?php if ( $pageIsActive ): ?><?php echo $arrRight; ?><?php endif;?>
 
 				<?php endfor;
 
@@ -179,6 +182,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 		 */
 		echo $args['after_widget'];
 	}
+
 
 	/**
 	 * Back-end widget form.
@@ -221,6 +225,7 @@ class Sub_Menu_Navigation extends WP_Widget {
 		</p>
 	<?php
 	}
+
 
 	/**
 	 * Sanitize Widget form values as they are saved
